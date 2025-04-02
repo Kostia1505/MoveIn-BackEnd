@@ -1,24 +1,37 @@
-const http = require('http')
-const { Sequelize } = require('sequelize');
+const express = require('express');
+const dotenv = require('dotenv');
+const cors = require('cors');
+const sequelize = require('./src/config/database');
+const authRoutes = require('./src/routes/authRoutes');
 
+dotenv.config();
 
-const server = http.createServer((req, res) => {
-    res.writeHead(200, {'Content-Type': 'text/plain; charset=utf8'})
-    res.end('MoveIn')
-})
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-const PORT = 3000
-const HOST = 'localhost'
+// Використання CORS
+app.use(cors());
+app.use(express.json());
 
-server.listen(PORT, HOST, () =>{
-    console.log(`Сервер: http://${HOST}:${PORT}`)
-})
-
-const sequelize = new Sequelize('movein', 'kostia', 'ZhekaFat69', {
-    host: 'localhost',
-    dialect: 'postgres',
+// Основний маршрут для перевірки
+app.get('/', (req, res) => {
+  console.log('GET / endpoint hit'); // Лог для перевірки
+  res.send('Welcome to the MoveIn API');
 });
 
-sequelize.authenticate()
-    .then(() => console.log('Connected to PostgreSQL'))
-    .catch(err => console.error('Connection error:', err));
+// Простий тестовий маршрут
+app.get('/test', (req, res) => {
+  console.log('GET /test endpoint hit');
+  res.send('Test route is working!');
+});
+
+// Маршрути для аутентифікації
+app.use('/api/auth', authRoutes);
+
+sequelize.sync()
+  .then(() => console.log('Database connected'))
+  .catch(err => console.log('Database error:', err));
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
