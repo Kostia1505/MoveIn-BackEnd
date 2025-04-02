@@ -1,13 +1,11 @@
-const http = require('http')
+const http = require("http");
+const app = require("./src/app"); // Підключаємо app.js з папки src
 
-const server = http.createServer((req, res) => {
-    res.writeHead(200, {'Content-Type': 'text/plain; charset=utf8'})
-    res.end('MoveIn')
-})
+const PORT = process.env.PORT || 5000;
+const HOST = "localhost";
 
-const PORT = 3000
-const HOST = 'localhost'
+const server = http.createServer(app);
 
-server.listen(PORT, HOST, () =>{
-    console.log(`Сервер: http://${HOST}:${PORT}`)
-})
+server.listen(PORT, HOST, () => {
+  console.log(`🚀 Сервер запущено: http://${HOST}:${PORT}`);
+});
