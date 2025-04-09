@@ -3,6 +3,7 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const sequelize = require('./src/config/database');
 const authRoutes = require('./src/routes/authRoutes');
+const listings = require('./src/routes/listings');
 
 dotenv.config();
 
@@ -27,6 +28,8 @@ app.get('/test', (req, res) => {
 
 // Маршрути для аутентифікації
 app.use('/api/auth', authRoutes);
+// Маршрути для оголошень
+app.use('/api/listings', listings);
 
 sequelize.sync()
   .then(() => console.log('Database connected'))
