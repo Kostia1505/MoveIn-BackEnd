@@ -1,43 +1,84 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../config/database');
+const Listing = require('../models/listing');
+const authMiddleware = require('../middleware/authMiddleware');
 
-//отримати всі оголошення
+// Отримати всі оголошення
 router.get('/', async (req, res) => {
-  const result = await db.query('SELECT * FROM listings ORDER BY created_at DESC');
-  res.json(result.rows);
+  try {
+    const listings = await Listing.findAll({ 
+      order: [['createdAt', 'DESC']],
+      include: [{ model: User, as: 'owner', attributes: ['id', 'username', 'avatar'] }] // Додано зв'язок з користувачем
+    });
+    res.json(listings);
+  } catch (error) {
+    res.status(500).json({ error: 'Помилка сервера' });
+  }
 });
 
-//отримати одне оголошення
+// Отримати оголошення по ID
 router.get('/:id', async (req, res) => {
-  const result = await db.query('SELECT * FROM listings WHERE id = $1', [req.params.id]);
-  res.json(result.rows[0]);
+  try {
+    const listing = await Listing.findByPk(req.params.id, {
+      include: [{ model: User, as: 'owner', attributes: ['id', 'username', 'avatar'] }]
+    });
+    if (!listing) return res.status(404).json({ error: 'Оголошення не знайдено' });
+    res.json(listing);
+  } catch (error) {
+    res.status(500).json({ error: 'Помилка сервера' });
+  }
 });
 
-//створити нове оголошення
-router.post('/', async (req, res) => {
-  const { title, description, price, location } = req.body;
-  const result = await db.query(
-    'INSERT INTO listings (title, description, price, location) VALUES ($1, $2, $3, $4) RETURNING *',
-    [title, description, price, location]
-  );
-  res.status(201).json(result.rows[0]);
+// Створити оголошення (з автентифікацією)
+router.post('/', authMiddleware, async (req, res) => {
+  try {
+    const { title, description, price, location } = req.body;
+    const newListing = await Listing.create({
+      title,
+      description,
+      price,
+      location,
+      ownerId: req.user.id // Використовуємо ID з токена
+    });
+    res.status(201).json(newListing);
+  } catch (error) {
+    res.status(400).json({ error: 'Невірні дані' });
+  }
 });
 
-//оновити оголошення
-router.put('/:id', async (req, res) => {
-  const { title, description, price, location } = req.body;
-  const result = await db.query(
-    'UPDATE listings SET title = $1, description = $2, price = $3, location = $4 WHERE id = $5 RETURNING *',
-    [title, description, price, location, req.params.id]
-  );
-  res.json(result.rows[0]);
+// Оновити оголошення (з перевіркою власника)
+router.put('/:id', authMiddleware, async (req, res) => {
+  try {
+    const listing = await Listing.findByPk(req.params.id);
+    if (!listing) return res.status(404).json({ error: 'Оголошення не знайдено' });
+    
+    // Перевірка, чи користувач є власником
+    if (listing.ownerId !== req.user.id) {
+      return res.status(403).json({ error: 'Доступ заборонено' });
+    }
+
+    await listing.update(req.body);
+    res.json(listing);
+  } catch (error) {
+    res.status(500).json({ error: 'Помилка сервера' });
+  }
 });
 
-//видалити оголошення
-router.delete('/:id', async (req, res) => {
-  await db.query('DELETE FROM listings WHERE id = $1', [req.params.id]);
-  res.status(204).send();
+// Видалити оголошення (з перевіркою власника)
+router.delete('/:id', authMiddleware, async (req, res) => {
+  try {
+    const listing = await Listing.findByPk(req.params.id);
+    if (!listing) return res.status(404).json({ error: 'Оголошення не знайдено' });
+
+    if (listing.ownerId !== req.user.id) {
+      return res.status(403).json({ error: 'Доступ заборонено' });
+    }
+
+    await listing.destroy();
+    res.status(204).send();
+  } catch (error) {
+    res.status(500).json({ error: 'Помилка сервера' });
+  }
 });
 
 module.exports = router;
