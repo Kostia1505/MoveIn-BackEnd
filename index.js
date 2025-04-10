@@ -3,7 +3,11 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const sequelize = require('./src/config/database');
 const authRoutes = require('./src/routes/authRoutes');
+const userRoutes = require('./src/routes/userRoutes');
 const listings = require('./src/routes/listings');
+const User = require('./src/models/user');
+const Listing = require('./src/models/listing');
+const Favorite = require('./src/models/favorite');
 
 dotenv.config();
 
@@ -30,11 +34,11 @@ app.get('/test', (req, res) => {
 app.use('/api/auth', authRoutes);
 // Маршрути для оголошень
 app.use('/api/listings', listings);
+// Маршрут кабінету
+app.use(userRoutes)
 
-sequelize.sync()
-  .then(() => console.log('Database connected'))
-  .catch(err => console.log('Database error:', err));
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+sequelize.sync({ force: false }) // `force: true` для перестворення таблиць
+  .then(() => {
+    app.listen(3000, () => console.log('Сервер запущено на порті 3000'));
+  })
+  .catch(error => console.error('Помилка синхронізації:', error));
