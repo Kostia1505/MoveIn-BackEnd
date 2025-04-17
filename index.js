@@ -18,6 +18,10 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
+// Додайте ці рядки після імпортів
+User.hasMany(Listing, { foreignKey: 'ownerId' });
+Listing.belongsTo(User, { foreignKey: 'ownerId', as: 'owner' });
+
 // Основний маршрут для перевірки
 app.get('/', (req, res) => {
   console.log('GET / endpoint hit'); // Лог для перевірки
