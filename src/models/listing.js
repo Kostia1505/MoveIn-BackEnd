@@ -7,7 +7,23 @@ const Listing = sequelize.define('Listing', {
   description: { type: DataTypes.TEXT },
   price: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
   location: { type: DataTypes.STRING, allowNull: false },
-  ownerId: { type: DataTypes.INTEGER, allowNull: false }
+  ownerId: { type: DataTypes.INTEGER, allowNull: false },
+  operationType: { 
+    type: DataTypes.ENUM('sale', 'rent'), 
+    allowNull: false 
+  },
+  propertyType: { 
+    type: DataTypes.ENUM('apartment', 'house'), 
+    allowNull: false 
+  },
+  rooms: { 
+    type: DataTypes.INTEGER, 
+    allowNull: true 
+  },
+  floors: { 
+    type: DataTypes.INTEGER, 
+    allowNull: true 
+  }
 });
 
 User.hasMany(Listing, { foreignKey: 'ownerId' });
