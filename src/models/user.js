@@ -8,8 +8,5 @@ const User = sequelize.define('User', {
   phone: { type: DataTypes.STRING, allowNull: true, },
   avatar: { type: DataTypes.TEXT, allowNull: true, }
 });
-User.hasMany(require('./review'), { foreignKey: 'userId' });
-User.hasMany(require('./listing'), { foreignKey: 'ownerId' })
-
 
 module.exports = User;
