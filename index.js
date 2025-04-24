@@ -7,7 +7,9 @@ const userRoutes = require('./src/routes/userRoutes');
 const listings = require('./src/routes/listings');
 const User = require('./src/models/user');
 const Listing = require('./src/models/listing');
+const Review = require('./src/models/review');
 const Favorite = require('./src/models/favorite');
+const reviewRoutes = require('./routes/reviews');
 
 dotenv.config();
 
@@ -40,6 +42,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/listings', listings);
 // Маршрут кабінету
 app.use(userRoutes)
+app.use('/api/reviews', reviewRoutes);
 
 sequelize.sync({ force: false }) // `force: true` для перестворення таблиць
   .then(() => {
