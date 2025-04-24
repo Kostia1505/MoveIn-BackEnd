@@ -8,7 +8,4 @@ const Favorite = sequelize.define('Favorite', {
   listingId: { type: DataTypes.INTEGER, primaryKey: true }
 });
 
-User.belongsToMany(Listing, { through: Favorite, foreignKey: 'userId', as: 'favorites' });
-Listing.belongsToMany(User, { through: Favorite, foreignKey: 'listingId' });
-
 module.exports = Favorite;

@@ -1,6 +1,6 @@
+// src/models/listing.js
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
-const User = require('./user');
 
 const Listing = sequelize.define('Listing', {
   title: { type: DataTypes.STRING, allowNull: false },
@@ -25,10 +25,5 @@ const Listing = sequelize.define('Listing', {
     allowNull: true 
   }
 });
-
-User.hasMany(Listing, { foreignKey: 'ownerId' });
-Listing.belongsTo(User, { foreignKey: 'ownerId' });
-Listing.hasMany(require('./review'), { foreignKey: 'listingId' });
-Listing.belongsTo(require('./user'), { foreignKey: 'ownerId' });
 
 module.exports = Listing;

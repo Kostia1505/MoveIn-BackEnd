@@ -1,4 +1,4 @@
-const { Review, Listing, User } = require('../models');
+const { Review, Listing, User } = require('../models/associations');
 const { validationResult } = require('express-validator');
 
 exports.createReview = async (req, res) => {
