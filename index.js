@@ -1,3 +1,4 @@
+// index.js (модифікований для підтримки тестування)
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
@@ -42,8 +43,14 @@ app.use('/api/reviews', reviewRoutes);
 // Маршрути для чату
 app.use('/api/messages', messageRoutes);
 
-sequelize.sync({ force: false })
-  .then(() => {
-    app.listen(3000, () => console.log('Сервер запущено на порті 3000'));
-  })
-  .catch(error => console.error('Помилка синхронізації:', error));
+// Зміна для підтримки тестів: не запускаємо сервер при імпорті модуля
+if (process.env.NODE_ENV !== 'test') {
+  sequelize.sync({ force: false })
+    .then(() => {
+      app.listen(PORT, () => console.log(`Сервер запущено на порті ${PORT}`));
+    })
+    .catch(error => console.error('Помилка синхронізації:', error));
+}
+
+// Експортуємо app для тестів
+module.exports = app;
