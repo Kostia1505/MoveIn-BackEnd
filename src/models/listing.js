@@ -1,6 +1,6 @@
 // src/models/listing.js
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
+const  sequelize = require('../config/database');
 
 const Listing = sequelize.define('Listing', {
   title: { type: DataTypes.STRING, allowNull: false },
